@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/notedit/media-server-go"
+	"github.com/joho/godotenv"
+	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go/sdp"
 )
 
@@ -108,9 +110,24 @@ func channel(c *gin.Context) {
 	}
 }
 
+func index(c *gin.Context) {
+	fmt.Println("helloworld")
+	c.HTML(http.StatusOK, "index.html", gin.H{})
+}
+
+func ping(c *gin.Context) {
+	c.JSON(200, map[string]string{"hello": "world"})
+}
+
 func main() {
-	bindAddress := "localhost:6000"
+	godotenv.Load()
+	address := ":8000"
+	if os.Getenv("port") != "" {
+		address = ":" + os.Getenv("port")
+	}
 	r := gin.Default()
+	r.LoadHTMLFiles("./index.html")
 	r.GET("/channel", channel)
-	r.Run(bindAddress)
+	r.GET("/", index)
+	r.Run(address)
 }
