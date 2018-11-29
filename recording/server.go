@@ -115,10 +115,6 @@ func index(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{})
 }
 
-func ping(c *gin.Context) {
-	c.JSON(200, map[string]string{"hello": "world"})
-}
-
 func main() {
 	godotenv.Load()
 	address := ":8000"
