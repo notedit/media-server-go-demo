@@ -93,13 +93,20 @@ func channel(c *gin.Context) {
 			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
 
 			for _, stream := range offer.GetStreams() {
+
 				incomingStream := transport.CreateIncomingStream(stream)
-
 				outgoingStream := transport.CreateOutgoingStream(stream.Clone())
-
 				outgoingStream.AttachTo(incomingStream)
-
 				answer.AddStream(outgoingStream.GetStreamInfo())
+
+				if len(incomingStream.GetVideoTracks()) > 0 {
+					videoTrack := incomingStream.GetVideoTracks()[0]
+					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame mediaserver.MediaFrame) {
+						fmt.Println("media frame ===========")
+						fmt.Println(frame.GetLength())
+					})
+					fmt.Println(duplicater)
+				}
 			}
 
 			ws.WriteJSON(Message{
