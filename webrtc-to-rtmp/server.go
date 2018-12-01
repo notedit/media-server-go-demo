@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
+	rtmp "github.com/notedit/gstreamer-rtmp"
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go/sdp"
 )
@@ -104,8 +105,12 @@ func channel(c *gin.Context) {
 
 				if len(incomingStream.GetVideoTracks()) > 0 {
 
+					pipeline := rtmp.CreatePipeline()
+					pipeline.Start()
+
 					videoTrack := incomingStream.GetVideoTracks()[0]
 					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame mediaserver.MediaFrame) {
+
 						fmt.Println("media frame ===========")
 						fmt.Println(frame.GetLength())
 
@@ -115,8 +120,8 @@ func channel(c *gin.Context) {
 						h.Cap = int(frame.GetLength())
 						h.Len = h.Cap
 
-						fmt.Println(len(buffer))
-
+						// push to the rtmp server
+						pipeline.Push(buffer)
 					})
 					fmt.Println(duplicater)
 				}
