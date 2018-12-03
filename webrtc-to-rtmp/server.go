@@ -1,17 +1,17 @@
 package main
 
+import "C"
+
 import (
 	"fmt"
 	"net/http"
 	"os"
-
-	"reflect"
 	"unsafe"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
-	rtmp "github.com/notedit/gstreamer-rtmp"
+	gstrtmp "github.com/notedit/gstreamer-rtmp"
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go/sdp"
 )
@@ -105,25 +105,23 @@ func channel(c *gin.Context) {
 
 				if len(incomingStream.GetVideoTracks()) > 0 {
 
-					pipeline := rtmp.CreatePipeline()
+					pipeline := gstrtmp.CreatePipeline("rtmp://localhost/live/live")
 					pipeline.Start()
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
+
 					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame mediaserver.MediaFrame) {
 
 						fmt.Println("media frame ===========")
-						fmt.Println(frame.GetLength())
 
-						var buffer []byte
-						h := (*reflect.SliceHeader)(unsafe.Pointer(&buffer))
-						h.Data = uintptr(unsafe.Pointer(frame.GetData()))
-						h.Cap = int(frame.GetLength())
-						h.Len = h.Cap
-
+						buffer := C.GoBytes(unsafe.Pointer(frame.GetData()), C.int(frame.GetLength()))
+						data, _ := mediaserver.AnnexbConvert(buffer)
 						// push to the rtmp server
-						pipeline.Push(buffer)
+						pipeline.Push(data)
+
 					})
 					fmt.Println(duplicater)
+
 				}
 			}
 
@@ -142,6 +140,8 @@ func index(c *gin.Context) {
 
 func main() {
 	godotenv.Load()
+	mediaserver.EnableDebug(true)
+	mediaserver.EnableLog(true)
 	address := ":8000"
 	if os.Getenv("port") != "" {
 		address = ":" + os.Getenv("port")
