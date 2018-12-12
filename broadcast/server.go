@@ -13,8 +13,9 @@ import (
 )
 
 type Message struct {
-	Cmd string `json:"cmd,omitempty"`
-	Sdp string `json:"sdp,omitempty"`
+	Cmd      string `json:"cmd,omitempty"`
+	Sdp      string `json:"sdp,omitempty"`
+	StreamID string `json:"stream,omitempty"`
 }
 
 var upGrader = websocket.Upgrader{
@@ -57,6 +58,8 @@ var Capabilities = map[string]*sdp.Capability{
 	},
 }
 
+var incomingStreams = map[string]*mediaserver.IncomingStream{}
+
 func channel(c *gin.Context) {
 
 	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
@@ -77,7 +80,7 @@ func channel(c *gin.Context) {
 			break
 		}
 
-		if msg.Cmd == "offer" {
+		if msg.Cmd == "publish" {
 			offer, err := sdp.Parse(msg.Sdp)
 			if err != nil {
 				panic(err)
@@ -93,12 +96,37 @@ func channel(c *gin.Context) {
 			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
 
 			for _, stream := range offer.GetStreams() {
+
 				incomingStream := transport.CreateIncomingStream(stream)
+				incomingStreams[incomingStream.GetID()] = incomingStream
+			}
 
-				outgoingStream := transport.CreateOutgoingStream2(stream.Clone())
+			ws.WriteJSON(Message{
+				Cmd: "answer",
+				Sdp: answer.String(),
+			})
 
+		}
+
+		if msg.Cmd == "watch" {
+
+			offer, err := sdp.Parse(msg.Sdp)
+			if err != nil {
+				panic(err)
+			}
+			transport = endpoint.CreateTransportWithRemote(offer, false)
+			transport.SetRemoteProperties(offer.GetMedia("audio"), offer.GetMedia("video"))
+
+			answer := offer.Answer(transport.GetLocalICEInfo(),
+				transport.GetLocalDTLSInfo(),
+				endpoint.GetLocalCandidates(),
+				Capabilities)
+
+			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
+
+			if incomingStream, ok := incomingStreams[msg.StreamID]; ok {
+				outgoingStream := transport.CreateOutgoingStream2(incomingStream.GetStreamInfo())
 				outgoingStream.AttachTo(incomingStream)
-
 				answer.AddStream(outgoingStream.GetStreamInfo())
 			}
 
@@ -107,12 +135,16 @@ func channel(c *gin.Context) {
 				Sdp: answer.String(),
 			})
 		}
+
 	}
 }
 
-func index(c *gin.Context) {
-	fmt.Println("helloworld")
-	c.HTML(http.StatusOK, "index.html", gin.H{})
+func publish(c *gin.Context) {
+	c.HTML(http.StatusOK, "publish.html", gin.H{})
+}
+
+func watch(c *gin.Context) {
+	c.HTML(http.StatusOK, "watch.html", gin.H{})
 }
 
 func main() {
@@ -122,8 +154,9 @@ func main() {
 		address = ":" + os.Getenv("port")
 	}
 	r := gin.Default()
-	r.LoadHTMLFiles("./index.html")
-	r.GET("/channel", channel)
-	r.GET("/", index)
+	r.LoadHTMLFiles("./publish.html", "./watch.html")
+	r.GET("/channl", channel)
+	r.GET("/watch", watch)
+	r.GET("/", publish)
 	r.Run(address)
 }
