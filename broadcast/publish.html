@@ -19,20 +19,18 @@ function init() {
     var video_container = document.getElementById('video_container');
     var watch_url = document.getElementById('watch_url');
 
-    var socket;
+    const pc = new RTCPeerConnection({
+        bundlePolicy: "max-bundle",
+        rtcpMuxPolicy : "require",
+        sdpSemantics : "plan-b"
+    });
 
+    var currentStream;
     let url = new URL(window.location);
 
-    socket = new WebSocket('ws://localhost:8000/channel');
+    const socket = new WebSocket('ws://localhost:8000/channel');
 
     socket.onopen =  async () => {
-
-
-        const pc = new RTCPeerConnection({
-            bundlePolicy: "max-bundle",
-            rtcpMuxPolicy : "require",
-            sdpSemantics : "plan-b"
-        });
 
         const constraints = {
             video: {width: {exact: 640}, height: {exact: 480}},
@@ -45,6 +43,7 @@ function init() {
 
         playVideo(stream);
 
+        currentStream = stream;
         const offer = await pc.createOffer()
         await pc.setLocalDescription(offer)
 
@@ -67,10 +66,9 @@ function init() {
             console.debug(answer.sdp);
             await pc.setRemoteDescription(answer); 
 
-            watch_url.innerHTML = url.origin + "/watch/" + stream.id
+            watch_url.innerHTML = url.origin + "/watch/" + currentStream.id
         }
-    };
-
+    }
 }
 
 function playVideo(stream) {
@@ -90,6 +88,7 @@ function playVideo(stream) {
 </head>
 <body onload="init();">
     <h1> WebRTC BroadCast</h1>
+
     
 	<br/>
 	<div id="conference">

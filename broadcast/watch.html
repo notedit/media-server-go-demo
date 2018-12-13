@@ -24,18 +24,18 @@ function init() {
 
     console.log(streamId);
 
-    var socket = new WebSocket('ws://localhost:8000/channel');
+    const pc = new RTCPeerConnection({
+        bundlePolicy: "max-bundle",
+        rtcpMuxPolicy : "require",
+        sdpSemantics : "plan-b"
+    });
+
+
+    const socket = new WebSocket('ws://localhost:8000/channel');
+
 
      socket.onopen =  async () => {
-        
-        console.log('socketio connect');
-
-        const pc = new RTCPeerConnection({
-            bundlePolicy: "max-bundle",
-            rtcpMuxPolicy : "require",
-            sdpSemantics : "plan-b"
-        });
-
+         
         pc.onaddstream = function(event) {
             console.debug("pc::onAddStream",event);
             //Play it

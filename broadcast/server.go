@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go/sdp"
+	"github.com/sanity-io/litter"
 )
 
 type Message struct {
@@ -96,7 +97,6 @@ func channel(c *gin.Context) {
 			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
 
 			for _, stream := range offer.GetStreams() {
-
 				incomingStream := transport.CreateIncomingStream(stream)
 				incomingStreams[incomingStream.GetID()] = incomingStream
 			}
@@ -125,6 +125,7 @@ func channel(c *gin.Context) {
 			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
 
 			if incomingStream, ok := incomingStreams[msg.StreamID]; ok {
+				litter.Dump(incomingStream.GetStreamInfo())
 				outgoingStream := transport.CreateOutgoingStream2(incomingStream.GetStreamInfo())
 				outgoingStream.AttachTo(incomingStream)
 				answer.AddStream(outgoingStream.GetStreamInfo())
@@ -155,8 +156,8 @@ func main() {
 	}
 	r := gin.Default()
 	r.LoadHTMLFiles("./publish.html", "./watch.html")
-	r.GET("/channl", channel)
-	r.GET("/watch", watch)
+	r.GET("/channel", channel)
+	r.GET("/watch/:stream", watch)
 	r.GET("/", publish)
 	r.Run(address)
 }
