@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<title> WebRTC BroadCast </title>
+<style type="text/css">
+</style>
+
+<script src="https://cdn.bootcss.com/socket.io/2.1.1/socket.io.js"></script>
+<script type='text/javascript'>
+
+
+window.localStorage.setItem('debug', '*ERROR*');
+
+function init() {
+
+    var video_container = document.getElementById('video_container');
+
+    const href = new URL(window.location.href);
+
+    // /watch/xxxxxx
+
+    const streamId = href.pathname.split('/').pop();
+
+    console.log(streamId);
+
+    var socket = new WebSocket('ws://localhost:8000/channel');
+
+     socket.onopen =  async () => {
+        
+        console.log('socketio connect');
+
+        const pc = new RTCPeerConnection({
+            bundlePolicy: "max-bundle",
+            rtcpMuxPolicy : "require",
+            sdpSemantics : "plan-b"
+        });
+
+        pc.onaddstream = function(event) {
+            console.debug("pc::onAddStream",event);
+            //Play it
+            playVideo(event.stream);
+        };
+
+        const offer = await pc.createOffer({
+            offerToReceiveAudio:1,
+            offerToReceiveVideo:1
+        })
+        
+        await pc.setLocalDescription(offer)
+
+        socket.send(JSON.stringify({
+            cmd: 'watch',
+            sdp: offer.sdp,
+            stream: streamId
+        }));
+
+    }
+
+    socket.onmessage  = async (event) =>{
+        var data = JSON.parse(event.data);
+        console.log(data);
+
+        if (data.sdp) {
+            //Create answer
+            const answer = new RTCSessionDescription({
+                type	:'answer',
+                sdp	: data.sdp
+            }); 
+            console.debug(answer.sdp);
+            await pc.setRemoteDescription(answer); 
+
+        }
+    };
+
+}
+
+function playVideo(stream) {
+
+    let element = document.createElement('video');
+	video_container.appendChild(element);
+	element.id = 'remote_video';
+	element.width = 640;
+    element.height = 480;
+    element.setAttribute('playsinline', true);
+    element.setAttribute('autoplay', true);
+	element.srcObject = stream;
+    element.controls = true;
+    element.muted = false;
+}
+
+</script>
+</head>
+<body onload="init();">
+    <h1> WebRTC BroadCast</h1>
+
+	<br/>
+	<div id="conference">
+		Video:
+		<br />
+		<div id="video_container">
+        </div>
+	</div>
+</body>
+</html>
