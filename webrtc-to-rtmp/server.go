@@ -116,10 +116,15 @@ func channel(c *gin.Context) {
 					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame mediaserver.MediaFrame) {
 
 						fmt.Println("media frame ===========")
-
+						if frame.GetLength() <= 4 {
+							return
+						}
 						buffer := C.GoBytes(unsafe.Pointer(frame.GetData()), C.int(frame.GetLength()))
 						data, _ := mediaserver.AnnexbConvert(buffer)
 						// push to the rtmp server
+						if len(data) <= 4 {
+							return
+						}
 						pipeline.Push(data)
 
 					})
