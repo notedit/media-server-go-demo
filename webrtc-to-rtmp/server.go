@@ -99,7 +99,10 @@ func channel(c *gin.Context) {
 			for _, stream := range offer.GetStreams() {
 				incomingStream := transport.CreateIncomingStream(stream)
 
-				outgoingStream := transport.CreateOutgoingStream(stream.Clone())
+				refresher := mediaserver.NewRefresher(2000)
+				refresher.AddStream(incomingStream)
+
+				outgoingStream := transport.CreateOutgoingStream2(stream.Clone())
 				outgoingStream.AttachTo(incomingStream)
 				answer.AddStream(outgoingStream.GetStreamInfo())
 
