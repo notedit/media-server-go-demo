@@ -8,12 +8,12 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	gstreamer "github.com/notedit/gstreamer-go"
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go/sdp"
-	uuid "github.com/satori/go.uuid"
 )
 
 const (
