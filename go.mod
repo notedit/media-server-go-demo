@@ -8,12 +8,12 @@ require (
 	github.com/gorilla/websocket v1.4.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mattn/go-isatty v0.0.4 // indirect
-	github.com/notedit/gstreamer-go v0.0.0-20181210120243-1e530a3eeb90
-	github.com/notedit/gstreamer-rtmp v0.0.0-20181203125803-118161fc1ea8
-	github.com/notedit/media-server-go v0.0.0-20181225171359-ceed668d6b67
-	github.com/rsc/go-get-issue-11864 v0.0.0-20161206214246-2540876b4cc1 // indirect
+	github.com/notedit/gstreamer-go v0.0.0-20181227090742-6b91b2242cd6
+	github.com/notedit/gstreamer-rtmp v0.0.0-20181226050148-9295bf2f2ca8
+	github.com/notedit/media-server-go v0.0.0-20181227070639-d11380ec126e
 	github.com/sanity-io/litter v1.1.0
 	github.com/ugorji/go/codec v0.0.0-20181209151446-772ced7fd4c2 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
