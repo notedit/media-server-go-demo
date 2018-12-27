@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<title> webrtc test  </title>
+<style type="text/css">
+	.room {
+		cursor: pointer;
+	}
+	div.select {
+      display: inline-block;
+      margin: 0 0 1em 0;
+    }
+</style>
+
+<script src="/public/fabric.min.js"></script>
+
+<script type='text/javascript'>
+
+    window.localStorage.setItem('debug', '*');
+
+    let container;
+    var socket;
+
+    function addVideoForStream(stream,muted)
+    {
+        //Create new video element
+        const video = document.createElement("video");
+        //Set same id
+        video.id = stream.id;
+        video.width = 320;
+        video.height = 240;
+        //Set src stream
+        video.srcObject = stream;
+        //Set other properties
+        video.autoplay = true;
+        video.muted = muted;
+
+
+        document.getElementById('remote').appendChild(video);
+    }
+
+    async function connect() 
+    {
+        const canvas = new fabric.Canvas('c');
+        var video1El = document.getElementById('video1');
+        var video2El = document.getElementById('video2');
+        var webcamEl = document.getElementById('webcam');
+
+        fabric.util.requestAnimFrame(function render() {
+            canvas.renderAll();
+            fabric.util.requestAnimFrame(render);
+        });
+
+        var video1 = new fabric.Image(video1El, {
+            left: 200,
+            top: 100,
+            angle: 0,
+            originX: 'center',
+            originY: 'center',
+            objectCaching: false,
+        });
+        var video2 = new fabric.Image(video2El, {
+            left: 1000,
+            top: 250,
+            angle: 0,
+            originX: 'center',
+            originY: 'center',
+            objectCaching: false,
+        });
+        var webcam = new fabric.Image(webcamEl, {
+            left: 539,
+            top: 400,
+            angle: 0,
+            originX: 'center',
+            originY: 'center',
+            objectCaching: false,
+        });
+
+        canvas.add(video1);
+        video1.getElement().play();
+        canvas.add(video2);
+        video2.getElement().play();
+
+
+        const cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: true
+                    });
+
+        
+
+        var video = document.getElementById('webcam');
+        video.srcObject = cameraStream;
+        canvas.add(webcam);
+        webcam.moveTo(0); // move webcam element to back of zIndex stack
+        webcam.getElement().play();
+
+
+        container = document.getElementById('container');
+
+        var pc = new RTCPeerConnection();
+        socket = new WebSocket('ws://localhost:8000/channel');
+
+
+        pc.onaddstream = function(event) {
+            console.debug("pc::onAddStream",event);
+            //Play it
+            addVideoForStream(event.stream);
+        };
+        
+
+        socket.onopen = async () => {
+
+            const mixedCanvas = canvas.lowerCanvasEl;
+            const mixedStream = mixedCanvas.captureStream(20);
+
+            mixedStream.getTracks().forEach(function(track) {
+                pc.addTrack(track, mixedStream);
+            });
+
+            const offer = await pc.createOffer();
+            //Set it
+            pc.setLocalDescription(offer);
+            console.log("offer ==== ",offer.sdp);
+            socket.send(JSON.stringify({
+                cmd: 'offer',
+                sdp: offer.sdp
+            }));
+        };
+
+        socket.onmessage  = async (event) =>{
+            var data = JSON.parse(event.data);
+            console.log(data);
+
+            if (data.sdp) {
+                //Create answer
+                const answer = new RTCSessionDescription({
+                    type	:'answer',
+                    sdp	: data.sdp
+                }); 
+                console.debug(answer.sdp);
+                await pc.setRemoteDescription(answer); 
+            }
+        };
+    }
+
+</script>
+</head>
+<body onload="connect();">
+
+    <video height="360" width="480" id="video1" style="display: none" muted loop>
+    <source src="http://localhost:8000/public/dizzy.mp4">
+    </video>
+    
+    <video height="360" width="640" id="video2" style="display: none" muted loop>
+    <source src="http://localhost:8000/public/big_buck_bunny.mp4">
+    </video>
+
+    <video height="240" width="320" id="webcam" style="display: none">
+    </video>
+
+	<h1> Video mixer </h1>
+    <br/>
+	<div id="conference">
+        <canvas id="c" width="1200" height="700" style="border:1px solid #ccc"></canvas>
+    </div>
+
+    <br/>
+    <h1>Remote Video</h1>
+    <div id="remote" >
+
+    </div>
+</body>
+
+</html>
