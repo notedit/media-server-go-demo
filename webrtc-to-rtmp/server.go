@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"unsafe"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -113,19 +112,13 @@ func channel(c *gin.Context) {
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
 
-					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame mediaserver.MediaFrame) {
+					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame []byte, duration uint, timestamp uint) {
 
 						fmt.Println("media frame ===========")
-						if frame.GetLength() <= 4 {
+						if len(frame) <= 4 {
 							return
 						}
-						buffer := C.GoBytes(unsafe.Pointer(frame.GetData()), C.int(frame.GetLength()))
-						data, _ := mediaserver.AnnexbConvert(buffer)
-						// push to the rtmp server
-						if len(data) <= 4 {
-							return
-						}
-						pipeline.Push(data)
+						pipeline.Push(frame)
 
 					})
 					fmt.Println(duplicater)

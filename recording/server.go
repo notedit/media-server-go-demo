@@ -23,6 +23,39 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
+var audioCapability = &sdp.Capability{
+	Codecs: []string{"opus"},
+}
+
+var videoCapability = &sdp.Capability{
+	Codecs: []string{"vp8"},
+	Rtx:    true,
+	Rtcpfbs: []*sdp.RtcpFeedback{
+		&sdp.RtcpFeedback{
+			ID: "goog-remb",
+		},
+		&sdp.RtcpFeedback{
+			ID: "transport-cc",
+		},
+		&sdp.RtcpFeedback{
+			ID:     "ccm",
+			Params: []string{"fir"},
+		},
+		&sdp.RtcpFeedback{
+			ID:     "nack",
+			Params: []string{"pli"},
+		},
+	},
+	Extensions: []string{
+		"urn:3gpp:video-orientation",
+		"http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
+		"http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
+		"urn:ietf:params:rtp-hdrext:toffse",
+		"urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id",
+		"urn:ietf:params:rtp-hdrext:sdes:mid",
+	},
+}
+
 var Capabilities = map[string]*sdp.Capability{
 	"audio": &sdp.Capability{
 		Codecs: []string{"opus"},
@@ -85,16 +118,30 @@ func channel(c *gin.Context) {
 			transport = endpoint.CreateTransportWithRemote(offer, false)
 			transport.SetRemoteProperties(offer.GetMedia("audio"), offer.GetMedia("video"))
 
-			answer := offer.Answer(transport.GetLocalICEInfo(),
-				transport.GetLocalDTLSInfo(),
-				endpoint.GetLocalCandidates(),
-				Capabilities)
+			ice := transport.GetLocalICEInfo()
+			dtls := transport.GetLocalDTLSInfo()
+			candidates := endpoint.GetLocalCandidates()
+
+			answer := sdp.NewSDPInfo()
+			answer.SetICE(ice)
+			answer.SetDTLS(dtls)
+			answer.AddCandidates(candidates)
+
+			if offer.GetMedia("audio") != nil {
+				audioMedia := offer.GetMedia("audio").AnswerCapability(audioCapability)
+				answer.AddMedia(audioMedia)
+			}
+
+			if offer.GetMedia("video") != nil {
+				videoMedia := offer.GetMedia("video").AnswerCapability(videoCapability)
+				answer.AddMedia(videoMedia)
+			}
 
 			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
 
 			for _, stream := range offer.GetStreams() {
-				incomingStream := transport.CreateIncomingStream(stream)
 
+				incomingStream := transport.CreateIncomingStream(stream)
 				outgoingStream := transport.CreateOutgoingStream2(stream.Clone())
 
 				outgoingStream.AttachTo(incomingStream)

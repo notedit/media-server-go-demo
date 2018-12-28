@@ -20,6 +20,8 @@ github.com/notedit/gstreamer-go v0.0.0-20181210120243-1e530a3eeb90 h1:v+w88yjsGT
 github.com/notedit/gstreamer-go v0.0.0-20181210120243-1e530a3eeb90/go.mod h1:CGCLZR47aRzzEmup8uQcplfOdLqEtJjFihiu+A2aIZw=
 github.com/notedit/gstreamer-go v0.0.0-20181227090742-6b91b2242cd6 h1:fFaNgR5gK4Ef4C6OxX+xp2jhgLZdD4EDqFWWyCMvzns=
 github.com/notedit/gstreamer-go v0.0.0-20181227090742-6b91b2242cd6/go.mod h1:CGCLZR47aRzzEmup8uQcplfOdLqEtJjFihiu+A2aIZw=
+github.com/notedit/gstreamer-go v0.0.0-20181227130428-6e962b0d13bc h1:u2FIzUiSBm5b4ALCBrYiJl9n5jUFRGkFqCC6/FZL8Fs=
+github.com/notedit/gstreamer-go v0.0.0-20181227130428-6e962b0d13bc/go.mod h1:CGCLZR47aRzzEmup8uQcplfOdLqEtJjFihiu+A2aIZw=
 github.com/notedit/gstreamer-rtmp v0.0.0-20181203125803-118161fc1ea8 h1:NziKVYqEOlXg1IEOEb2VrBsybuEceDpI2sEGWpy5VsQ=
 github.com/notedit/gstreamer-rtmp v0.0.0-20181203125803-118161fc1ea8/go.mod h1:29rZyet7mlIPMGC4Ol9kGLL9JRIpt0YbBmg1NUXM5NY=
 github.com/notedit/gstreamer-rtmp v0.0.0-20181226050148-9295bf2f2ca8 h1:Bqzzyc2AnHdX87Yl1TTc2xsKCoKas8XsUZ16o2PhHgI=
@@ -34,6 +36,8 @@ github.com/notedit/media-server-go v0.0.0-20181225171359-ceed668d6b67 h1:hIdTzZE
 github.com/notedit/media-server-go v0.0.0-20181225171359-ceed668d6b67/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
 github.com/notedit/media-server-go v0.0.0-20181227070639-d11380ec126e h1:r28wl3DUW5nGnLA2gZcPwNU67sL1drXFxSEjdNOAlCM=
 github.com/notedit/media-server-go v0.0.0-20181227070639-d11380ec126e/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.1.2 h1:L6qBjjIvQuKUrmwGQweJueJwu5VHMbV0m7I6cKwZqKU=
+github.com/notedit/media-server-go v0.1.2/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
 github.com/rsc/go-get-issue-11864 v0.0.0-20161206214246-2540876b4cc1 h1:8xHyUipRVZ4NSaSuqE5rTTM3QYnx1hypbykO8/hLgnw=
 github.com/rsc/go-get-issue-11864 v0.0.0-20161206214246-2540876b4cc1/go.mod h1:JZZGjNckOVWC1ca/StBR+CkCd10b2EFsTIgSq1iKRCw=
 github.com/sanity-io/litter v1.1.0 h1:BllcKWa3VbZmOZbDCoszYLk7zCsKHz5Beossi8SUcTc=
