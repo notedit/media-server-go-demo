@@ -82,12 +82,15 @@
         canvas.add(video2);
         video2.getElement().play();
 
-
-        const cameraStream = await navigator.mediaDevices.getUserMedia({
+        var cameraStream = null;
+        if (navigator.mediaDevices.getDisplayMedia) {
+            cameraStream = await navigator.mediaDevices.getDisplayMedia();
+        } else {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
                     video: true
                     });
+        }
 
-        
 
         var video = document.getElementById('webcam');
         video.srcObject = cameraStream;
@@ -156,13 +159,13 @@
     <source src="http://localhost:8000/public/big_buck_bunny.mp4">
     </video>
 
-    <video height="240" width="320" id="webcam" style="display: none">
+    <video height="576" width="1024" id="webcam" style="display: none">
     </video>
 
 	<h1> Video mixer </h1>
     <br/>
 	<div id="conference">
-        <canvas id="c" width="1200" height="700" style="border:1px solid #ccc"></canvas>
+        <canvas id="c" width="1024" height="576" style="border:1px solid #ccc"></canvas>
     </div>
 
     <br/>
