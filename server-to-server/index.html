@@ -13,7 +13,6 @@ window.localStorage.setItem('debug', '*ERROR*');
 
 
 function init() {
-
     
     var video_container = document.getElementById('video_container');
     var watch_url = document.getElementById('watch_url');
@@ -63,8 +62,6 @@ function init() {
             }); 
             console.debug(answer.sdp);
             await pc.setRemoteDescription(answer); 
-
-            watch_url.innerHTML = url.origin + "/watch/" + currentStream.id
         }
     }
 }
@@ -96,8 +93,5 @@ function playVideo(stream) {
         </div>
     </div>
 
-    <div id="watch_url">
-        
-    </div>
 </body>
 </html>
