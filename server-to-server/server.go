@@ -40,6 +40,12 @@ var Capabilities = map[string]*sdp.Capability{
 				ID: "transport-cc",
 			},
 			&sdp.RtcpFeedback{
+				ID: "ccm",
+			},
+			&sdp.RtcpFeedback{
+				ID: "nack",
+			},
+			&sdp.RtcpFeedback{
 				ID:     "ccm",
 				Params: []string{"fir"},
 			},
@@ -70,7 +76,7 @@ func channel(c *gin.Context) {
 	defer ws.Close()
 
 	var transport *mediaserver.Transport
-	endpoint := mediaserver.NewEndpoint("192.168.212.120")
+	endpoint := mediaserver.NewEndpoint("127.0.0.1")
 
 	for {
 		// read json
@@ -112,10 +118,10 @@ func channel(c *gin.Context) {
 			// now lets test webrtc server to webrtc server
 			time.Sleep(10 * time.Second)
 
-			endpointA := mediaserver.NewEndpoint("192.168.212.120")
+			endpointA := mediaserver.NewEndpoint("127.0.0.1")
 			offerA := endpointA.CreateOffer(Capabilities["video"], Capabilities["audio"])
 
-			endpointB := mediaserver.NewEndpoint("192.168.212.120")
+			endpointB := mediaserver.NewEndpoint("127.0.0.1")
 			transportB := endpointB.CreateTransport(offerA, nil, true)
 			transportB.SetRemoteProperties(offerA.GetAudioMedia(), offerA.GetVideoMedia())
 
