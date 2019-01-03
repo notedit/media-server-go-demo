@@ -70,7 +70,7 @@ func channel(c *gin.Context) {
 	defer ws.Close()
 
 	var transport *mediaserver.Transport
-	endpoint := mediaserver.NewEndpoint("127.0.0.1")
+	endpoint := mediaserver.NewEndpoint("192.168.212.120")
 
 	for {
 		// read json
@@ -86,7 +86,7 @@ func channel(c *gin.Context) {
 			if err != nil {
 				panic(err)
 			}
-			transport = endpoint.CreateTransportWithRemote(offer, false)
+			transport = endpoint.CreateTransport(offer, nil)
 			transport.SetRemoteProperties(offer.GetMedia("audio"), offer.GetMedia("video"))
 
 			answer := offer.Answer(transport.GetLocalICEInfo(),
@@ -112,10 +112,11 @@ func channel(c *gin.Context) {
 			// now lets test webrtc server to webrtc server
 			time.Sleep(10 * time.Second)
 
-			endpointA := mediaserver.NewEndpoint("127.0.0.1")
+			endpointA := mediaserver.NewEndpoint("192.168.212.120")
 			offerA := endpointA.CreateOffer(Capabilities["video"], Capabilities["audio"])
 
-			transportB := endpoint.CreateTransportWithRemote(offerA, false)
+			endpointB := mediaserver.NewEndpoint("192.168.212.120")
+			transportB := endpointB.CreateTransport(offerA, nil, true)
 			transportB.SetRemoteProperties(offerA.GetAudioMedia(), offerA.GetVideoMedia())
 
 			answerB := offerA.Answer(transportB.GetLocalICEInfo(),

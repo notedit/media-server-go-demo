@@ -84,7 +84,7 @@ func channel(c *gin.Context) {
 			if err != nil {
 				panic(err)
 			}
-			transport = endpoint.CreateTransportWithRemote(offer, false)
+			transport = endpoint.CreateTransport(offer, nil)
 			transport.SetRemoteProperties(offer.GetMedia("audio"), offer.GetMedia("video"))
 
 			answer := offer.Answer(transport.GetLocalICEInfo(),
