@@ -126,7 +126,7 @@ func channel(c *gin.Context) {
 
 			if incomingStream, ok := incomingStreams[msg.StreamID]; ok {
 				litter.Dump(incomingStream.GetStreamInfo())
-				outgoingStream := transport.CreateOutgoingStream2(incomingStream.GetStreamInfo())
+				outgoingStream := transport.CreateOutgoingStream(incomingStream.GetStreamInfo())
 				outgoingStream.AttachTo(incomingStream)
 				answer.AddStream(outgoingStream.GetStreamInfo())
 			}

@@ -131,7 +131,7 @@ func channel(c *gin.Context) {
 				Capabilities)
 
 			transportB.SetLocalProperties(answerB.GetAudioMedia(), answerB.GetVideoMedia())
-			outgoingStreamB := transportB.CreateOutgoingStream("remote-"+incomingStream.GetID(), true, true)
+			outgoingStreamB := transportB.CreateOutgoingStreamWithID("remote-"+incomingStream.GetID(), true, true)
 
 			answerB.AddStream(outgoingStreamB.GetStreamInfo())
 

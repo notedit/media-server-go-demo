@@ -142,7 +142,7 @@ func channel(c *gin.Context) {
 			for _, stream := range offer.GetStreams() {
 
 				incomingStream := transport.CreateIncomingStream(stream)
-				outgoingStream := transport.CreateOutgoingStream2(stream.Clone())
+				outgoingStream := transport.CreateOutgoingStream(stream.Clone())
 
 				outgoingStream.AttachTo(incomingStream)
 
