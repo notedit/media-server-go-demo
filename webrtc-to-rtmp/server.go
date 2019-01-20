@@ -112,16 +112,11 @@ func channel(c *gin.Context) {
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
 
-					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack, func(frame []byte, duration uint, timestamp uint) {
+					// func(frame []byte, duration uint, timestamp uint)
 
-						fmt.Println("media frame ===========")
-						if len(frame) <= 4 {
-							return
-						}
-						pipeline.Push(frame)
+					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack)
 
-					})
-					fmt.Println(duplicater)
+					go rtp2rtmp(pipeline, duplicater)
 
 				}
 			}
@@ -131,6 +126,18 @@ func channel(c *gin.Context) {
 				Sdp: answer.String(),
 			})
 		}
+	}
+}
+
+func rtp2rtmp(pipeline *gstrtmp.Pipeline, duplicater *mediaserver.MediaStreamDuplicater) {
+
+	for {
+		frame := <-duplicater.MediaFrames
+		fmt.Println("media frame ===========")
+		if len(frame) <= 4 {
+			return
+		}
+		pipeline.Push(frame)
 	}
 }
 
