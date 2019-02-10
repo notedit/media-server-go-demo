@@ -56,7 +56,8 @@
         container = document.getElementById('container');
 
         var pc = new RTCPeerConnection({
-            sdpSemantics:'plan-b'
+            bundlePolicy: "max-bundle",
+            rtcpMuxPolicy : "require"
         });
         
         pc.onaddstream = function(event) {
@@ -73,11 +74,13 @@
         socket = new WebSocket('ws://localhost:8000/channel');
         socket.onopen = async () => {
 
+
+            pc.addTransceiver("audio",{direction:"recvonly"});
+            pc.addTransceiver("video",{direction:"recvonly"});
+
             //Create  offer
-            const offer = await pc.createOffer({
-                offerToReceiveAudio: false,
-                offerToReceiveVideo: true
-            });
+            const offer = await pc.createOffer();
+
             //Set it
             pc.setLocalDescription(offer);
             console.log("offer ==== ",offer.sdp);
