@@ -99,7 +99,7 @@ func channel(c *gin.Context) {
 				endpoint.GetLocalCandidates(),
 				Capabilities)
 
-			rawStreamer := mediaserver.NewRawRTPStreamer()
+			rawStreamer := mediaserver.NewRawStreamer()
 			videoSession := rawStreamer.CreateSession(offer.GetMedia("video"))
 			audioSession := rawStreamer.CreateSession(offer.GetMedia("audio"))
 
@@ -127,7 +127,7 @@ func channel(c *gin.Context) {
 	}
 }
 
-func generteVideoRTP(session *mediaserver.RawRTPStreamerSession, payload int) {
+func generteVideoRTP(session *mediaserver.RawStreamerSession, payload int) {
 
 	pipelineStr := "videotestsrc is-live=true ! video/x-raw,format=I420,framerate=15/1 ! x264enc aud=false bframes=0 speed-preset=veryfast key-int-max=15 ! video/x-h264,stream-format=byte-stream,profile=baseline ! h264parse ! rtph264pay config-interval=-1  pt=%d ! appsink name=appsink"
 	pipelineStr = fmt.Sprintf(pipelineStr, payload)
@@ -148,7 +148,7 @@ func generteVideoRTP(session *mediaserver.RawRTPStreamerSession, payload int) {
 	}
 }
 
-func generateAudioRTP(session *mediaserver.RawRTPStreamerSession, payload int) {
+func generateAudioRTP(session *mediaserver.RawStreamerSession, payload int) {
 
 	pipelineStr := "filesrc location=output.aac ! decodebin ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=%d ! appsink name=appsink"
 	pipelineStr = fmt.Sprintf(pipelineStr, payload)
