@@ -14,3 +14,6 @@
 
 node_modules/
 package-lock.json
+
+playlist.m3u8
+*.ts

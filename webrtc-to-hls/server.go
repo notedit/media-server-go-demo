@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
@@ -103,9 +104,9 @@ func channel(c *gin.Context) {
 				refresher := mediaserver.NewRefresher(2000)
 				refresher.AddStream(incomingStream)
 
-				outgoingStream := transport.CreateOutgoingStream(stream.Clone())
-				outgoingStream.AttachTo(incomingStream)
-				answer.AddStream(outgoingStream.GetStreamInfo())
+				// outgoingStream := transport.CreateOutgoingStream(stream.Clone())
+				// outgoingStream.AttachTo(incomingStream)
+				// answer.AddStream(outgoingStream.GetStreamInfo())
 
 				if len(incomingStream.GetVideoTracks()) > 0 {
 
@@ -159,6 +160,7 @@ func main() {
 		address = ":" + os.Getenv("port")
 	}
 	r := gin.Default()
+	r.Use(static.Serve("/", static.LocalFile("./", false)))
 	r.LoadHTMLFiles("./index.html")
 	r.GET("/channel", channel)
 	r.GET("/", index)

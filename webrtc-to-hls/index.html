@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<title> webrtc test  </title>
+<style type="text/css">
+	.room {
+		cursor: pointer;
+	}
+	div.select {
+      display: inline-block;
+      margin: 0 0 1em 0;
+    }
+</style>
+
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<script src="https://cdn.bootcss.com/hls.js/0.10.1/hls.min.js"></script>
+
+<script type='text/javascript'>
+
+    window.localStorage.setItem('debug', '*');
+    let container;
+    var socket;
+    function addVideoForStream(stream,muted)
+    {
+        //Create new video element
+        const video = document.createElement("video");
+        //Set same id
+        video.id = stream.id;
+        video.width = 320;
+        video.height = 240;
+        //Set src stream
+        video.srcObject = stream;
+        //Set other properties
+        video.autoplay = true;
+        video.muted = muted;
+        //Append it
+        container.appendChild(video);
+    }
+    function removeVideoForStream(stream)
+    {
+        //Get video
+        var video = document.getElementById(stream.id);
+        //Remove it when done
+        video.addEventListener('webkitTransitionEnd',function(){
+                //Delete it
+            video.parentElement.removeChild(video);
+        });
+        //Disable it first
+        video.className = "disabled";
+    }
+
+    function playHLS() {
+        const video = document.createElement("video");
+        //Set same id
+        video.width = 320;
+        video.height = 240;
+
+
+        var hls = new Hls();
+        hls.loadSource('http://localhost:8000/playlist.m3u8');
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED,function() {
+            video.play();
+        });
+
+        container.appendChild(video);
+    }
+    function connect() 
+    {
+        container = document.getElementById('container');
+
+
+        var pc = new RTCPeerConnection({
+            bundlePolicy: "max-bundle",
+            rtcpMuxPolicy : "require"
+        });
+        
+        
+        pc.onremovestream = function(event) {
+            console.debug("pc::onRemoveStream",event);
+            //Play it
+            removeVideoForStream(event.stream);
+        };
+        socket = new WebSocket('ws://localhost:8000/channel');
+
+        socket.onopen = async () => {
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: true
+            });
+            console.debug("md::getUserMedia sucess",stream);
+            //Play it
+            addVideoForStream(stream,true);
+
+            pc.addTransceiver("audio",{direction:"recvonly"});
+            pc.addTransceiver("video",{direction:"recvonly"});
+
+            await pc.addTrack(stream.getAudioTracks()[0],stream);
+            await pc.addTrack(stream.getVideoTracks()[0],stream);
+
+            //Create  offer
+            const offer = await pc.createOffer();
+            //Set it
+            pc.setLocalDescription(offer);
+            console.log("offer ==== ",offer.sdp);
+            socket.send(JSON.stringify({
+                cmd: 'offer',
+                sdp: offer.sdp
+            }));
+        };
+
+        socket.onmessage  = async (event) =>{
+            var data = JSON.parse(event.data);
+            console.log(data);
+
+            if (data.sdp) {
+                //Create answer
+                const answer = new RTCSessionDescription({
+                    type	:'answer',
+                    sdp	: data.sdp
+                }); 
+                console.debug(answer.sdp);
+                await pc.setRemoteDescription(answer); 
+            }
+
+            document.getElementById("playhlsbutton").style.visibility = "visible";
+        };
+    }
+
+</script>
+
+</head>
+<body onload="connect();">
+	<h1>MediaServer WebRTC to HLS demo</h1>
+	<br/>
+
+	<div id="conference">
+		videos:
+		<br />
+        <div id="container"></div>
+
+        <button id="playhlsbutton" onclick="playHLS();" style="visibility: hidden;">Play HLS</button>
+	</div>
+</body>
+
+
+</html>
