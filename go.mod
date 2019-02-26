@@ -16,4 +16,4 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
 
-replace github.com/notedit/media-server-go v0.1.2 => /Users/frank/gopath/src/github.com/notedit/media-server-go
+replace github.com/notedit/media-server-go v0.1.2 => ../media-server-go
