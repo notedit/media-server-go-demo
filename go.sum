@@ -24,8 +24,6 @@ github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs
 github.com/mattn/go-isatty v0.0.4/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
-github.com/nareix/joy4 v0.0.0-20181022032202-3ddbc8f9d431 h1:nWhrOsCKdV6bivw03k7MROF2tYzCFGfYBYFrTEHyucs=
-github.com/nareix/joy4 v0.0.0-20181022032202-3ddbc8f9d431/go.mod h1:aFJ1ZwLjvHN4yEzE5Bkz8rD8/d8Vlj3UIuvz2yfET7I=
 github.com/notedit/gstreamer-go v0.0.0-20181210120243-1e530a3eeb90 h1:v+w88yjsGTezEAd2W0QZaRcJvh53G5PjaMtA6fl8TIY=
 github.com/notedit/gstreamer-go v0.0.0-20181210120243-1e530a3eeb90/go.mod h1:CGCLZR47aRzzEmup8uQcplfOdLqEtJjFihiu+A2aIZw=
 github.com/notedit/gstreamer-go v0.0.0-20181227090742-6b91b2242cd6 h1:fFaNgR5gK4Ef4C6OxX+xp2jhgLZdD4EDqFWWyCMvzns=
