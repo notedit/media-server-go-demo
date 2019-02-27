@@ -112,10 +112,27 @@ func channel(c *gin.Context) {
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
 
-					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack)
+					pipeline, err := gstreamer.New(pipelineStr)
+					if err != nil {
+						panic(err)
+					}
 
-					go frame2hls(duplicater)
+					appsrc := pipeline.FindElement("appsrc")
+					pipeline.Start()
 
+					videoTrack.OnMediaFrame(func(frame []byte, timestamp uint) {
+
+						fmt.Println("media frame ===========")
+						if len(frame) <= 4 {
+							return
+						}
+						appsrc.Push(frame)
+					})
+
+					videoTrack.OnStop(func() {
+						appsrc.Stop()
+						pipeline.Stop()
+					})
 				}
 			}
 
@@ -125,25 +142,6 @@ func channel(c *gin.Context) {
 			})
 		}
 	}
-}
-
-func frame2hls(duplicater *mediaserver.MediaStreamDuplicater) {
-
-	pipeline, err := gstreamer.New(pipelineStr)
-	if err != nil {
-		panic(err)
-	}
-
-	appsrc := pipeline.FindElement("appsrc")
-	pipeline.Start()
-
-	for frame := range duplicater.MediaFrames {
-		fmt.Println("media frame ===========", len(frame))
-		appsrc.Push(frame)
-	}
-
-	pipeline.Stop()
-
 }
 
 func index(c *gin.Context) {

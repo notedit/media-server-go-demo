@@ -13,6 +13,7 @@ import (
 	gstrtmp "github.com/notedit/gstreamer-rtmp"
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go/sdp"
+	rtmp "github.com/notedit/rtmp-lib"
 )
 
 type Message struct {
@@ -112,12 +113,15 @@ func channel(c *gin.Context) {
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
 
-					// func(frame []byte, duration uint, timestamp uint)
+					videoTrack.OnMediaFrame(func(frame []byte, timestamp uint) {
 
-					duplicater := mediaserver.NewMediaStreamDuplicater(videoTrack)
+						fmt.Println("media frame ===========")
+						if len(frame) <= 4 {
+							return
+						}
+						pipeline.Push(frame)
 
-					go rtp2rtmp(pipeline, duplicater)
-
+					})
 				}
 			}
 
@@ -129,16 +133,33 @@ func channel(c *gin.Context) {
 	}
 }
 
-func rtp2rtmp(pipeline *gstrtmp.Pipeline, duplicater *mediaserver.MediaStreamDuplicater) {
+func startRtmp() {
 
-	for {
-		frame := <-duplicater.MediaFrames
-		fmt.Println("media frame ===========")
-		if len(frame) <= 4 {
+	server := &rtmp.Server{}
+
+	server.HandlePublish = func(conn *rtmp.Conn) {
+
+		fmt.Println("got rtmp stream ")
+
+		var err error
+
+		if _, err = conn.Streams(); err != nil {
+			fmt.Println(err)
 			return
 		}
-		pipeline.Push(frame)
+
+		for {
+			packet, err := conn.ReadPacket()
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+
+			fmt.Println("got rtmp packet", packet.Time)
+		}
 	}
+
+	server.ListenAndServe()
 }
 
 func index(c *gin.Context) {
@@ -154,6 +175,9 @@ func main() {
 	if os.Getenv("port") != "" {
 		address = ":" + os.Getenv("port")
 	}
+
+	go startRtmp()
+
 	r := gin.Default()
 	r.LoadHTMLFiles("./index.html")
 	r.GET("/channel", channel)

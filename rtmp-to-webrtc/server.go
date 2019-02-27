@@ -3,25 +3,18 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/nareix/joy4/av/avutil"
-	"github.com/nareix/joy4/av/pktque"
-	"github.com/nareix/joy4/av/pubsub"
-	"github.com/nareix/joy4/format"
-	"github.com/nareix/joy4/format/rtmp"
+
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go-demo/rtmp-to-webrtc/rtmpstreamer"
 	"github.com/notedit/media-server-go/sdp"
-)
 
-func init() {
-	format.RegisterAll()
-}
+	rtmp "github.com/notedit/rtmp-lib"
+	"github.com/notedit/rtmp-lib/av"
+)
 
 const (
 	videoPt    = 100
@@ -138,54 +131,29 @@ func channel(c *gin.Context) {
 func main() {
 	server := &rtmp.Server{}
 
-	l := &sync.RWMutex{}
-	type Channel struct {
-		que *pubsub.Queue
-	}
-	channels := map[string]*Channel{}
-
-	server.HandlePlay = func(conn *rtmp.Conn) {
-		l.RLock()
-		ch := channels[conn.URL.Path]
-		l.RUnlock()
-
-		if ch != nil {
-			cursor := ch.que.Latest()
-			query := conn.URL.Query()
-
-			if q := query.Get("delaygop"); q != "" {
-				n := 0
-				fmt.Sscanf(q, "%d", &n)
-				cursor = ch.que.DelayedGopCount(n)
-			} else if q := query.Get("delaytime"); q != "" {
-				dur, _ := time.ParseDuration(q)
-				cursor = ch.que.DelayedTime(dur)
-			}
-
-			filters := pktque.Filters{}
-
-			if q := query.Get("waitkey"); q != "" {
-				filters = append(filters, &pktque.WaitKeyFrame{})
-			}
-
-			filters = append(filters, &pktque.FixTime{StartFromZero: true, MakeIncrement: true})
-
-			demuxer := &pktque.FilterDemuxer{
-				Filter:  filters,
-				Demuxer: cursor,
-			}
-
-			avutil.CopyFile(conn, demuxer)
-		}
-	}
-
 	server.HandlePublish = func(conn *rtmp.Conn) {
 
-		// streamer := &RTMPStreamer{}
-		// avutil.CopyFile(streamer, conn)
+		var streams []av.CodecData
+		var err error
 
-		avutil.CopyFile(rtmpStreamer, conn)
+		if streams, err = conn.Streams(); err != nil {
+			fmt.Println(err)
+			return
+		}
 
+		if err = rtmpStreamer.WriteHeader(streams); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		for {
+			packet, err := conn.ReadPacket()
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+			rtmpStreamer.WritePacket(packet)
+		}
 	}
 
 	go server.ListenAndServe()
