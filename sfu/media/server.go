@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go/sdp"
+	"github.com/notedit/sdp"
 )
 
 var Capabilities = map[string]*sdp.Capability{

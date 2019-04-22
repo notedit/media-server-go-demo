@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	gstreamer "github.com/notedit/gstreamer-go"
 	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go/sdp"
+	"github.com/notedit/sdp"
 )
 
 const (

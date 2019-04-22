@@ -12,8 +12,8 @@ import (
 	"github.com/joho/godotenv"
 	gstrtmp "github.com/notedit/gstreamer-rtmp"
 	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go/sdp"
 	rtmp "github.com/notedit/rtmp-lib"
+	"github.com/notedit/sdp"
 )
 
 type Message struct {

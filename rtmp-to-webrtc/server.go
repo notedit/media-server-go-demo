@@ -10,7 +10,7 @@ import (
 
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/media-server-go-demo/rtmp-to-webrtc/rtmpstreamer"
-	"github.com/notedit/media-server-go/sdp"
+	"github.com/notedit/sdp"
 
 	rtmp "github.com/notedit/rtmp-lib"
 	"github.com/notedit/rtmp-lib/av"

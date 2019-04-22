@@ -6,10 +6,10 @@ import (
 
 	gstreamer "github.com/notedit/gstreamer-go"
 	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go/sdp"
 	"github.com/notedit/rtmp-lib/aac"
 	"github.com/notedit/rtmp-lib/av"
 	"github.com/notedit/rtmp-lib/h264"
+	"github.com/notedit/sdp"
 )
 
 // decodebin  !  x264enc aud=false bframes=0 speed-preset=veryfast key-int-max=15 ! video/x-h264,stream-format=byte-stream,profile=baseline !

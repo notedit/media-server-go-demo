@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go/sdp"
+	"github.com/notedit/sdp"
 )
 
 type Message struct {

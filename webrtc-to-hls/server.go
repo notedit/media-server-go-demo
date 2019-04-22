@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	gstreamer "github.com/notedit/gstreamer-go"
 	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go/sdp"
+	"github.com/notedit/sdp"
 )
 
 var pipelineStr = "appsrc do-timestamp=true is-live=true  name=appsrc ! h264parse !  mpegtsmux name=muxer ! hlssink max-files=10 target-duration=5"
