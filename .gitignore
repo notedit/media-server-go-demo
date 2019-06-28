@@ -17,3 +17,5 @@ package-lock.json
 
 playlist.m3u8
 *.ts
+
+.vscode/
