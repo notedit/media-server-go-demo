@@ -108,7 +108,7 @@ func channel(c *gin.Context) {
 
 				if len(incomingStream.GetVideoTracks()) > 0 {
 
-					pipeline := gstrtmp.CreatePipeline("rtmp://localhost/live/live")
+					pipeline := gstrtmp.CreatePipeline("rtmp://127.0.0.1/live/live")
 					pipeline.Start()
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
