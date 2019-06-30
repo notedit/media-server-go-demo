@@ -178,6 +178,7 @@ func main() {
 	godotenv.Load()
 	mediaserver.EnableDebug(true)
 	mediaserver.EnableLog(true)
+	mediaserver.EnableUltraDebug(true)
 	address := ":8000"
 	if os.Getenv("port") != "" {
 		address = ":" + os.Getenv("port")

@@ -99,9 +99,17 @@ func channel(c *gin.Context) {
 				endpoint.GetLocalCandidates(),
 				Capabilities)
 
-			streamer := mediaserver.NewStreamer()
-			videoSession := streamer.CreateSession(true, "127.0.0.1", 5000, offer.GetMedia("video"))
-			audioSession := streamer.CreateSession(true, "127.0.0.1", 5002, offer.GetMedia("audio"))
+			// streamer := mediaserver.NewStreamer()
+			// videoSession := streamer.CreateSession(true, "127.0.0.1", 5000, offer.GetMedia("video"))
+			// audioSession := streamer.CreateSession(true, "127.0.0.1", 5002, offer.GetMedia("audio"))
+			videoSession := mediaserver.NewStreamerSession(offer.GetMedia("video"))
+			//videoSession.SetLocalPort(5000)
+			videoPort := videoSession.GetLocalPort()
+			videoSession.SetRemotePort("127.0.0.1", 10000)
+			audioSession := mediaserver.NewStreamerSession(offer.GetMedia("audio"))
+			//audioSession.SetLocalPort(5002)
+			audioPort := audioSession.GetLocalPort()
+			audioSession.SetRemotePort("127.0.0.1", 10002)
 
 			videoCodecInfo := offer.GetMedia("video").GetCodec(videoCodec)
 			audioCodecInfo := offer.GetMedia("audio").GetCodec(audioCodec)
@@ -113,8 +121,8 @@ func channel(c *gin.Context) {
 			outgoingStream.GetVideoTracks()[0].AttachTo(videoSession.GetIncomingStreamTrack())
 			outgoingStream.GetAudioTracks()[0].AttachTo(audioSession.GetIncomingStreamTrack())
 
-			go generteVideoRTP(videoSession, videoCodecInfo.GetType())
-			go generateAudioRTP(audioSession, audioCodecInfo.GetType())
+			go generteVideoRTP(videoSession, videoCodecInfo.GetType(), videoPort)
+			go generateAudioRTP(audioSession, audioCodecInfo.GetType(), audioPort)
 
 			info := outgoingStream.GetStreamInfo()
 			answer.AddStream(info)
@@ -127,10 +135,10 @@ func channel(c *gin.Context) {
 	}
 }
 
-func generteVideoRTP(session *mediaserver.StreamerSession, payload int) {
+func generteVideoRTP(session *mediaserver.StreamerSession, payload int, port int) {
 
-	pipelineStr := "videotestsrc is-live=true ! video/x-raw,format=I420,framerate=15/1 ! x264enc aud=false bframes=0 speed-preset=veryfast key-int-max=15 ! video/x-h264,stream-format=byte-stream,profile=baseline ! h264parse ! rtph264pay config-interval=-1  pt=%d ! udpsink host=127.0.0.1 port=5000"
-	pipelineStr = fmt.Sprintf(pipelineStr, payload)
+	pipelineStr := "videotestsrc is-live=true ! video/x-raw,format=I420,framerate=15/1 ! x264enc aud=false bframes=0 speed-preset=veryfast key-int-max=15 ! video/x-h264,stream-format=byte-stream,profile=baseline ! h264parse ! rtph264pay config-interval=-1  pt=%d ! udpsink host=127.0.0.1 port=%d"
+	pipelineStr = fmt.Sprintf(pipelineStr, payload, port)
 	pipeline, err := gstreamer.New(pipelineStr)
 
 	if err != nil {
@@ -146,10 +154,10 @@ func generteVideoRTP(session *mediaserver.StreamerSession, payload int) {
 	}
 }
 
-func generateAudioRTP(session *mediaserver.StreamerSession, payload int) {
+func generateAudioRTP(session *mediaserver.StreamerSession, payload int, port int) {
 
-	pipelineStr := "filesrc location=output.aac ! decodebin ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=%d ! udpsink host=127.0.0.1 port=5002"
-	pipelineStr = fmt.Sprintf(pipelineStr, payload)
+	pipelineStr := "filesrc location=output.aac ! decodebin ! audioconvert ! audioresample ! opusenc ! rtpopuspay pt=%d ! udpsink host=127.0.0.1 port=%d"
+	pipelineStr = fmt.Sprintf(pipelineStr, payload, port)
 	pipeline, err := gstreamer.New(pipelineStr)
 
 	if err != nil {
