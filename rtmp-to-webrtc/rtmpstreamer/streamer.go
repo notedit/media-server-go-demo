@@ -17,8 +17,8 @@ import (
 //var audio2rtp = "appsrc is-live=true name=appsrc ! decodebin ! audioconvert ! audioresample ! audio/x-raw,rate=48000 !  opusenc ! opusdec ! autoaudiosink"
 // do-timestamp=true is-live=true
 
-var audio2rtp = "appsrc do-timestamp=true is-live=true  name=appsrc ! decodebin ! audioconvert ! audioresample ! opusenc ! rtpopuspay timestamp-offset=0 pt=%d ! appsink name=appsink"
-var video2rtp = "appsrc do-timestamp=true is-live=true  name=appsrc ! h264parse ! rtph264pay timestamp-offset=0 config-interval=-1 pt=%d ! appsink name=appsink"
+var audio2rtp = "appsrc do-timestamp=true is-live=true  name=appsrc ! decodebin ! audioconvert ! audioresample ! opusenc ! rtpopuspay timestamp-offset=0 pt=%d ! udpsink host=127.0.0.1 port=%d"
+var video2rtp = "appsrc do-timestamp=true is-live=true  name=appsrc ! h264parse ! rtph264pay timestamp-offset=0 config-interval=-1 pt=%d ! udpsink host=127.0.0.1 port=%d"
 
 // RtmpStreamer _
 type RtmpStreamer struct {
@@ -27,8 +27,6 @@ type RtmpStreamer struct {
 	audioCodecData aac.CodecData
 	audioPipeline  *gstreamer.Pipeline
 	videoPipeline  *gstreamer.Pipeline
-	audiosink      *gstreamer.Element
-	videosink      *gstreamer.Element
 	audiosrc       *gstreamer.Element
 	videosrc       *gstreamer.Element
 
@@ -39,9 +37,8 @@ type RtmpStreamer struct {
 
 	spspps bool
 
-	streamer        *mediaserver.RawStreamer
-	videoSession    *mediaserver.RawStreamerSession
-	audioSession    *mediaserver.RawStreamerSession
+	videoSession    *mediaserver.StreamerSession
+	audioSession    *mediaserver.StreamerSession
 	audioCapability *sdp.Capability
 	videoCapability *sdp.Capability
 }
@@ -59,8 +56,6 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 	self.streams = streams
 
-	self.streamer = mediaserver.NewRawStreamer()
-
 	for _, stream := range streams {
 		if stream.Type() == av.H264 {
 			h264Codec := stream.(h264.CodecData)
@@ -68,9 +63,9 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 			videoMediaInfo := sdp.MediaInfoCreate("video", self.videoCapability)
 
-			self.videoSession = self.streamer.CreateSession(videoMediaInfo)
+			self.videoSession = mediaserver.NewStreamerSession(videoMediaInfo)
 
-			video2rtpstr := fmt.Sprintf(video2rtp, videoMediaInfo.GetCodec("h264").GetType())
+			video2rtpstr := fmt.Sprintf(video2rtp, videoMediaInfo.GetCodec("h264").GetType(), self.videoSession.GetLocalPort())
 
 			videoPipeline, err := gstreamer.New(video2rtpstr)
 			if err != nil {
@@ -79,16 +74,8 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 			self.videoPipeline = videoPipeline
 			self.videosrc = videoPipeline.FindElement("appsrc")
-			self.videosink = videoPipeline.FindElement("appsink")
-			videoPipeline.Start()
-			self.videoout = self.videosink.Poll()
 
-			go func() {
-				for rtp := range self.videoout {
-					fmt.Println("video===", len(rtp))
-					self.videoSession.Push(rtp)
-				}
-			}()
+			videoPipeline.Start()
 
 		}
 		if stream.Type() == av.AAC {
@@ -97,7 +84,9 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 			audioMediaInfo := sdp.MediaInfoCreate("audio", self.audioCapability)
 
-			audio2rtpstr := fmt.Sprintf(audio2rtp, audioMediaInfo.GetCodec("opus").GetType())
+			self.audioSession = mediaserver.NewStreamerSession(audioMediaInfo)
+
+			audio2rtpstr := fmt.Sprintf(audio2rtp, audioMediaInfo.GetCodec("opus").GetType(), self.audioSession.GetLocalPort())
 			//audio2rtpstr = audio2rtp
 			audioPipeline, err := gstreamer.New(audio2rtpstr)
 			if err != nil {
@@ -108,18 +97,7 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 			self.audioPipeline = audioPipeline
 			self.audiosrc = audioPipeline.FindElement("appsrc")
-			self.audiosink = audioPipeline.FindElement("appsink")
 			audioPipeline.Start()
-			self.audioout = self.audiosink.Poll()
-
-			self.audioSession = self.streamer.CreateSession(audioMediaInfo)
-
-			go func() {
-				for rtp := range self.audioout {
-					fmt.Println("audio===", len(rtp))
-					self.audioSession.Push(rtp)
-				}
-			}()
 
 		}
 	}
