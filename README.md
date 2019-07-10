@@ -5,6 +5,44 @@ media server go demo  for  https://github.com/notedit/media-server-go
 
 
 
+## Build
+```shell
+mkdir wk_webrtc && cd wk_webrtc
+git clone --recurse-submodules https://github.com/notedit/media-server-go-native.git
+git clone https://github.com/notedit/media-server-go.git
+git clone https://github.com/notedit/media-server-go-demo.git
+
+# build media-server-go-native
+cd media-server-go-native && make -j 4
+
+# build media-server-go
+cd ../media-server-go && go build 
+
+# build media-server-go-demo
+cd ../media-server-go-demo
+
+# broadcast 
+go build 
+
+# recording
+go build 
+
+# rtmp-to-webrtc 
+sudo apt-get install libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-libav gstreamer1.0-plugins-bad
+go build
+
+# server-to-server 
+go build 
+
+# sfu
+go build 
+
+# video-mixer
+go build 
+
+# webrtc-to-hls
+
+```
 
 ## Examples
 
