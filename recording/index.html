@@ -36,6 +36,7 @@
         //Append it
         container.appendChild(video);
     }
+    
     function removeVideoForStream(stream)
     {
         //Get video
@@ -56,7 +57,7 @@
         
         pc.onaddstream = function(event) {
             console.debug("pc::onAddStream",event);
-            //Play it
+            // Add The recording video
             addVideoForStream(event.stream);
         };
         
@@ -72,8 +73,9 @@
                 video: true
             });
             console.debug("md::getUserMedia sucess",stream);
-            //Play it
+            // Add LocalVideo 
             addVideoForStream(stream,true);
+
             // we add stream later 
             pc.addStream(stream);
             //Create new offer
