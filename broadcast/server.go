@@ -87,6 +87,7 @@ func channel(c *gin.Context) {
 			if err != nil {
 				panic(err)
 			}
+
 			transport = endpoint.CreateTransport(offer, nil)
 			transport.SetRemoteProperties(offer.GetMedia("audio"), offer.GetMedia("video"))
 
@@ -126,8 +127,11 @@ func channel(c *gin.Context) {
 
 			transport.SetLocalProperties(answer.GetMedia("audio"), answer.GetMedia("video"))
 
+			// 通过StreamID获取对应的流
 			if incomingStream, ok := incomingStreams[msg.StreamID]; ok {
 				litter.Dump(incomingStream.GetStreamInfo())
+
+				//　关联推流内容和该观看者
 				outgoingStream := transport.CreateOutgoingStream(incomingStream.GetStreamInfo())
 				outgoingStream.AttachTo(incomingStream)
 				answer.AddStream(outgoingStream.GetStreamInfo())
