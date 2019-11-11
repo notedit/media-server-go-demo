@@ -11,10 +11,10 @@
 
 window.localStorage.setItem('debug', '*ERROR*');
 
+server = "wss://" + window.location.hostname + ":8000/channel"
 
 function init() {
-
-    
+   
     var video_container = document.getElementById('video_container');
     var watch_url = document.getElementById('watch_url');
 
@@ -26,7 +26,7 @@ function init() {
     var currentStream;
     let url = new URL(window.location);
 
-    const socket = new WebSocket('ws://localhost:8000/channel');
+    const socket = new WebSocket(server);
 
     socket.onopen =  async () => {
 

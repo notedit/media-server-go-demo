@@ -11,6 +11,7 @@ import (
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/sdp"
 	"github.com/sanity-io/litter"
+	"github.com/unrolled/secure"
 )
 
 type Message struct {
@@ -80,7 +81,7 @@ func channel(c *gin.Context) {
 			fmt.Println("error: ", err)
 			break
 		}
-
+		// 推流端
 		if msg.Cmd == "publish" {
 			offer, err := sdp.Parse(msg.Sdp)
 			if err != nil {
@@ -108,6 +109,7 @@ func channel(c *gin.Context) {
 
 		}
 
+		// 观看者
 		if msg.Cmd == "watch" {
 
 			offer, err := sdp.Parse(msg.Sdp)
@@ -155,9 +157,27 @@ func main() {
 		address = ":" + os.Getenv("port")
 	}
 	r := gin.Default()
+	r.Use(TlsHandler())
 	r.LoadHTMLFiles("./publish.html", "./watch.html")
 	r.GET("/channel", channel)
 	r.GET("/watch/:stream", watch)
 	r.GET("/", publish)
-	r.Run(address)
+	r.RunTLS(address, "../certs/mycert.pem", "../certs/mycert.key")
+}
+
+func TlsHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     "localhost:8080",
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
+
+		// If there was an error, do not continue.
+		if err != nil {
+			return
+		}
+
+		c.Next()
+	}
 }
