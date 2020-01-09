@@ -3,6 +3,8 @@ package main
 import "C"
 
 import (
+
+	"sync"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,6 +15,7 @@ import (
 	gstrtmp "github.com/notedit/gstreamer-rtmp"
 	mediaserver "github.com/notedit/media-server-go"
 	rtmp "github.com/notedit/rtmp-lib"
+	"github.com/notedit/rtmp-lib/pubsub"
 	"github.com/notedit/sdp"
 )
 
@@ -115,7 +118,6 @@ func channel(c *gin.Context) {
 
 					videoTrack.OnMediaFrame(func(frame []byte, timestamp uint) {
 
-						fmt.Println("media frame ===========")
 						if len(frame) <= 4 {
 							return
 						}
@@ -133,13 +135,37 @@ func channel(c *gin.Context) {
 	}
 }
 
+
+type Channel struct {
+	que  *pubsub.Queue
+}
+
+var channels = map[string]*Channel{}
+
+
+
+
+
 func startRtmp() {
+
+
+	l := &sync.RWMutex{}
 
 	server := &rtmp.Server{}
 
 	server.HandlePublish = func(conn *rtmp.Conn) {
 
-		fmt.Println("got rtmp stream ")
+
+		l.Lock()
+		ch := channels[conn.URL.Path]
+
+		if ch == nil {
+			ch = &Channel{}
+			ch.que = pubsub.NewQueue()
+			ch.que.SetMaxGopCount(1)
+			channels[conn.URL.Path] = ch
+		}
+		l.Unlock()
 
 		var err error
 
@@ -156,6 +182,41 @@ func startRtmp() {
 			}
 
 			fmt.Println("got rtmp packet", packet.Time)
+		}
+
+		l.Lock()
+		delete(channels, conn.URL.Path)
+		l.Unlock()
+
+		ch.que.Close()
+	}
+
+	server.HandlePlay = func(conn *rtmp.Conn) {
+
+
+		l.RLock()
+		ch := channels[conn.URL.Path]
+		l.RUnlock()
+
+		if ch != nil {
+
+			cursor := ch.que.Latest()
+
+			streams, err := cursor.Streams()
+
+			if err != nil {
+				panic(err)
+			}
+
+			conn.WriteHeader(streams)
+
+			for {
+				packet, err := cursor.ReadPacket()
+				if err != nil {
+					break
+				}
+				conn.WritePacket(packet)
+			}
 		}
 	}
 
