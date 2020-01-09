@@ -36,6 +36,28 @@ github.com/notedit/gstreamer-go v0.3.0 h1:M4QvNk+fdeDSgjmtiWvH0jlLDt6Rl4/yX1DC/9
 github.com/notedit/gstreamer-go v0.3.0/go.mod h1:CGCLZR47aRzzEmup8uQcplfOdLqEtJjFihiu+A2aIZw=
 github.com/notedit/gstreamer-rtmp v0.0.0-20181226050148-9295bf2f2ca8 h1:Bqzzyc2AnHdX87Yl1TTc2xsKCoKas8XsUZ16o2PhHgI=
 github.com/notedit/gstreamer-rtmp v0.0.0-20181226050148-9295bf2f2ca8/go.mod h1:29rZyet7mlIPMGC4Ol9kGLL9JRIpt0YbBmg1NUXM5NY=
+<<<<<<< HEAD
+=======
+github.com/notedit/media-server-go v0.0.0-20181224045827-96ce049ca27b h1:xuazzDG0IZWZ2+bXyAER0f6cTzEYhDE7lnRfLMz1qD4=
+github.com/notedit/media-server-go v0.0.0-20181224045827-96ce049ca27b/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.0.0-20181225131450-848d7ad1e602 h1:zCwPCOdKfbkNi6U8XzCiuicIzCCBaT+Ec8+YidPYcrg=
+github.com/notedit/media-server-go v0.0.0-20181225131450-848d7ad1e602/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.0.0-20181225141712-7ecbee38d4af h1:NdNB62hwYF3Un7GMaiZ6cmCYU1MMdgYh7xKE1kk2Lxc=
+github.com/notedit/media-server-go v0.0.0-20181225141712-7ecbee38d4af/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.0.0-20181225171359-ceed668d6b67 h1:hIdTzZEifDEr2HW2SxP97DVXbt2avAfT7oocAady6LI=
+github.com/notedit/media-server-go v0.0.0-20181225171359-ceed668d6b67/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.0.0-20181227070639-d11380ec126e h1:r28wl3DUW5nGnLA2gZcPwNU67sL1drXFxSEjdNOAlCM=
+github.com/notedit/media-server-go v0.0.0-20181227070639-d11380ec126e/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.1.2 h1:L6qBjjIvQuKUrmwGQweJueJwu5VHMbV0m7I6cKwZqKU=
+github.com/notedit/media-server-go v0.1.2/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.1.6 h1:ELqLHVFspdCNgAX8AAy08f73fePoD3ivD+dgzDsO4JI=
+github.com/notedit/media-server-go v0.1.6/go.mod h1:a2tVGyH6IegghSpIrj03Y+kjr5jrYCEctNEFIloGrQc=
+github.com/notedit/media-server-go v0.1.8 h1:g/PwEuPQOX5bpDbJipmu6wPCR54pGM+xpnJ/HD2lGyE=
+github.com/notedit/media-server-go v0.1.16 h1:qRKIUMJ5U5JbSOd5qmVZiqJZ7O71+Lhq9oflCYtNgp8=
+github.com/notedit/media-server-go v0.1.16/go.mod h1:Ry7LEaoTobAi101A02eBNNPCaiiAzOf6Vdz0llSVAes=
+github.com/notedit/media-server-go v0.1.17 h1:bJWWpbNKZLPki5Utz5zUVDIpbf4TofAgsSjC39SLjo4=
+github.com/notedit/media-server-go v0.1.17/go.mod h1:Ry7LEaoTobAi101A02eBNNPCaiiAzOf6Vdz0llSVAes=
+>>>>>>> mediaframesession
 github.com/notedit/rtmp-lib v0.0.1 h1:bezXVVCnyfefQYURECA//37cJ2RrAioIaiXC254iUT4=
 github.com/notedit/rtmp-lib v0.0.1/go.mod h1:Ua4gNG+L57n+AkZfSrsV+VGoWDuOTd7eux+CBjGPeF0=
 github.com/notedit/sdp v0.0.0-20190418080450-702b42591eb2 h1:OBlsQl9n5djQqLqwHO5gou1irbitUPwS+SfOrt3yHTU=

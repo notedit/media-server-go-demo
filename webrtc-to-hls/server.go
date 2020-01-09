@@ -128,11 +128,7 @@ func channel(c *gin.Context) {
 						}
 						appsrc.Push(frame)
 					})
-
-					videoTrack.OnStop(func() {
-						appsrc.Stop()
-						pipeline.Stop()
-					})
+					
 				}
 			}
 
