@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	gstreamer "github.com/notedit/gstreamer-go"
+	"github.com/notedit/gst"
 	mediaserver "github.com/notedit/media-server-go"
 	"github.com/notedit/rtmp-lib/aac"
 	"github.com/notedit/rtmp-lib/av"
@@ -25,10 +25,10 @@ type RtmpStreamer struct {
 	streams        []av.CodecData
 	videoCodecData h264.CodecData
 	audioCodecData aac.CodecData
-	audioPipeline  *gstreamer.Pipeline
-	videoPipeline  *gstreamer.Pipeline
-	audiosrc       *gstreamer.Element
-	videosrc       *gstreamer.Element
+	audioPipeline  *gst.Pipeline
+	videoPipeline  *gst.Pipeline
+	audiosrc       *gst.Element
+	videosrc       *gst.Element
 
 	videoout <-chan []byte
 	audioout <-chan []byte
@@ -67,15 +67,15 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 			video2rtpstr := fmt.Sprintf(video2rtp, videoMediaInfo.GetCodec("h264").GetType(), self.videoSession.GetLocalPort())
 
-			videoPipeline, err := gstreamer.New(video2rtpstr)
+			videoPipeline, err := gst.ParseLaunch(video2rtpstr)
 			if err != nil {
 				panic(err)
 			}
 
 			self.videoPipeline = videoPipeline
-			self.videosrc = videoPipeline.FindElement("appsrc")
+			self.videosrc = videoPipeline.GetByName("appsrc")
 
-			videoPipeline.Start()
+			videoPipeline.SetState(gst.StatePlaying)
 
 		}
 		if stream.Type() == av.AAC {
@@ -88,7 +88,7 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 
 			audio2rtpstr := fmt.Sprintf(audio2rtp, audioMediaInfo.GetCodec("opus").GetType(), self.audioSession.GetLocalPort())
 			//audio2rtpstr = audio2rtp
-			audioPipeline, err := gstreamer.New(audio2rtpstr)
+			audioPipeline, err := gst.ParseLaunch(audio2rtpstr)
 			if err != nil {
 				panic(err)
 			}
@@ -96,8 +96,8 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 			self.adtsheader = make([]byte, 7)
 
 			self.audioPipeline = audioPipeline
-			self.audiosrc = audioPipeline.FindElement("appsrc")
-			audioPipeline.Start()
+			self.audiosrc = audioPipeline.GetByName("appsrc")
+			audioPipeline.SetState(gst.StatePlaying)
 
 		}
 	}
@@ -118,7 +118,7 @@ func (self *RtmpStreamer) WritePacket(packet av.Packet) error {
 			b.Write(self.videoCodecData.SPS())
 			b.Write([]byte{0, 0, 0, 1})
 			b.Write(self.videoCodecData.PPS())
-			self.videosrc.Push(b.Bytes())
+			self.videosrc.PushBuffer(b.Bytes())
 			self.spspps = true
 		}
 
@@ -127,7 +127,7 @@ func (self *RtmpStreamer) WritePacket(packet av.Packet) error {
 			var b bytes.Buffer
 			b.Write([]byte{0, 0, 0, 1})
 			b.Write(nalu)
-			self.videosrc.Push(b.Bytes())
+			self.videosrc.PushBuffer(b.Bytes())
 		}
 
 	}
@@ -139,7 +139,7 @@ func (self *RtmpStreamer) WritePacket(packet av.Packet) error {
 		adtsbuffer = append(adtsbuffer, self.adtsheader...)
 		adtsbuffer = append(adtsbuffer, packet.Data...)
 
-		self.audiosrc.Push(adtsbuffer)
+		self.audiosrc.PushBuffer(adtsbuffer)
 	}
 
 	return nil
