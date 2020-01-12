@@ -52,9 +52,7 @@
     {
         container = document.getElementById('container');
 
-        var pc = new RTCPeerConnection({
-            sdpSemantics :'plan-b'
-        });
+        var pc = new RTCPeerConnection();
         
         pc.onaddstream = function(event) {
             console.debug("pc::onAddStream",event);
@@ -71,8 +69,8 @@
 
         socket.onopen = async () => {
             const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-                video: true
+                audio: false,
+                video: {width: {exact: 1280}, height: {exact: 720}}
             });
             console.debug("md::getUserMedia sucess",stream);
             //Play it
@@ -86,6 +84,7 @@
             });
             //Set it
             pc.setLocalDescription(offer);
+            
             console.log("offer ==== ",offer.sdp);
             socket.send(JSON.stringify({
                 cmd: 'offer',
