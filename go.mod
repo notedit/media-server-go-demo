@@ -7,6 +7,7 @@ require (
 	github.com/gorilla/websocket v1.4.0
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/notedit/gst v0.0.3
 	github.com/notedit/gstreamer-go v0.3.0
 	github.com/notedit/gstreamer-rtmp v0.0.0-20181226050148-9295bf2f2ca8
 	github.com/notedit/media-server-go v0.1.17

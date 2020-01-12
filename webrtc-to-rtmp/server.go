@@ -12,10 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
-	gstrtmp "github.com/notedit/gstreamer-rtmp"
 	mediaserver "github.com/notedit/media-server-go"
 	rtmp "github.com/notedit/rtmp-lib"
+	"github.com/notedit/rtmp-lib/av"
 	"github.com/notedit/rtmp-lib/pubsub"
+	rtmppusher "github.com/notedit/media-server-go-demo/webrtc-to-rtmp/rtmp"
 	"github.com/notedit/sdp"
 )
 
@@ -102,17 +103,18 @@ func channel(c *gin.Context) {
 			for _, stream := range offer.GetStreams() {
 				incomingStream := transport.CreateIncomingStream(stream)
 
-				refresher := mediaserver.NewRefresher(2000)
-				refresher.AddStream(incomingStream)
-
 				outgoingStream := transport.CreateOutgoingStream(stream.Clone())
 				outgoingStream.AttachTo(incomingStream)
 				answer.AddStream(outgoingStream.GetStreamInfo())
 
 				if len(incomingStream.GetVideoTracks()) > 0 {
 
-					pipeline := gstrtmp.CreatePipeline("rtmp://127.0.0.1/live/live")
-					pipeline.Start()
+					pusher, err := rtmppusher.NewRtmpPusher("rtmp://127.0.0.1/live/live")
+					if err != nil {
+						panic(err)
+					}
+
+					pusher.Start()
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
 
@@ -121,7 +123,7 @@ func channel(c *gin.Context) {
 						if len(frame) <= 4 {
 							return
 						}
-						pipeline.Push(frame)
+						pusher.Push(frame)
 
 					})
 				}
@@ -148,7 +150,6 @@ var channels = map[string]*Channel{}
 
 func startRtmp() {
 
-
 	l := &sync.RWMutex{}
 
 	server := &rtmp.Server{}
@@ -169,10 +170,14 @@ func startRtmp() {
 
 		var err error
 
-		if _, err = conn.Streams(); err != nil {
+		var streams []av.CodecData
+
+		if streams, err = conn.Streams(); err != nil {
 			fmt.Println(err)
 			return
 		}
+
+		ch.que.WriteHeader(streams)
 
 		for {
 			packet, err := conn.ReadPacket()
@@ -180,6 +185,8 @@ func startRtmp() {
 				fmt.Println(err)
 				break
 			}
+
+			ch.que.WritePacket(packet)
 
 			fmt.Println("got rtmp packet", packet.Time)
 		}
