@@ -27,13 +27,14 @@
         const video = document.createElement("video");
         //Set same id
         video.id = stream.id;
-        video.width = 320;
-        video.height = 240;
+        video.width = 640;
+        video.height = 480;
         //Set src stream
         video.srcObject = stream;
         //Set other properties
         video.autoplay = true;
         video.playsInline = true;
+        video.controls = true;
         // video.play();
         video.muted = muted;
         //Append it
