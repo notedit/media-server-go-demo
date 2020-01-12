@@ -10,11 +10,11 @@ require (
 	github.com/notedit/gst v0.0.3
 	github.com/notedit/gstreamer-go v0.3.0
 	github.com/notedit/gstreamer-rtmp v0.0.0-20181226050148-9295bf2f2ca8
-	github.com/notedit/media-server-go v0.1.17
+	github.com/notedit/media-server-go v0.1.18
 	github.com/notedit/rtmp-lib v0.0.2
 	github.com/notedit/sdp v0.0.0-20190418080450-702b42591eb2
 	github.com/sanity-io/litter v1.1.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
 
-replace github.com/notedit/media-server-go v0.1.17 => ../media-server-go
+#replace github.com/notedit/media-server-go v0.1.18 => ../media-server-go
