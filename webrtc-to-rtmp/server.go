@@ -3,20 +3,19 @@ package main
 import "C"
 
 import (
-
-	"sync"
 	"fmt"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	mediaserver "github.com/notedit/media-server-go"
+	rtmppusher "github.com/notedit/media-server-go-demo/webrtc-to-rtmp/rtmp"
 	rtmp "github.com/notedit/rtmp-lib"
 	"github.com/notedit/rtmp-lib/av"
 	"github.com/notedit/rtmp-lib/pubsub"
-	rtmppusher "github.com/notedit/media-server-go-demo/webrtc-to-rtmp/rtmp"
 	"github.com/notedit/sdp"
 )
 
@@ -111,14 +110,14 @@ func channel(c *gin.Context) {
 				outgoingStream.AttachTo(incomingStream)
 				answer.AddStream(outgoingStream.GetStreamInfo())
 
+				pusher, err := rtmppusher.NewRtmpPusher("rtmp://127.0.0.1/live/live")
+				if err != nil {
+					panic(err)
+				}
+
+				pusher.Start()
+
 				if len(incomingStream.GetVideoTracks()) > 0 {
-
-					pusher, err := rtmppusher.NewRtmpPusher("rtmp://127.0.0.1/live/live")
-					if err != nil {
-						panic(err)
-					}
-
-					pusher.Start()
 
 					videoTrack := incomingStream.GetVideoTracks()[0]
 
@@ -127,10 +126,25 @@ func channel(c *gin.Context) {
 						if len(frame) <= 4 {
 							return
 						}
-						pusher.Push(frame)
+						pusher.Push(frame,false)
 
 					})
 				}
+
+				if len(incomingStream.GetAudioTracks()) > 0 {
+
+					audioTrack := incomingStream.GetAudioTracks()[0]
+
+					audioTrack.OnMediaFrame(func(frame []byte, timestamp uint){
+
+						if len(frame) <= 4 {
+							return
+						}
+
+						pusher.Push(frame,true)
+					})
+				}
+
 			}
 
 			ws.WriteJSON(Message{
@@ -147,10 +161,6 @@ type Channel struct {
 }
 
 var channels = map[string]*Channel{}
-
-
-
-
 
 func startRtmp() {
 

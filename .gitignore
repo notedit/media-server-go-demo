@@ -19,3 +19,5 @@ playlist.m3u8
 *.ts
 
 .vscode/
+
+.idea/

@@ -18,3 +18,5 @@ require (
 )
 
 //replace github.com/notedit/media-server-go v0.1.18 => ../media-server-go
+
+go 1.13
