@@ -33,6 +33,7 @@
         //Set other properties
         video.autoplay = true;
         video.muted = muted;
+
         //Append it
         container.appendChild(video);
     }
@@ -57,7 +58,7 @@
         pc.onaddstream = function(event) {
             console.debug("pc::onAddStream",event);
             //Play it
-            addVideoForStream(event.stream);
+            addVideoForStream(event.stream,true);
         };
         
         pc.onremovestream = function(event) {
@@ -69,7 +70,7 @@
 
         socket.onopen = async () => {
             const stream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
+                audio: true,
                 video: {width: {exact: 1280}, height: {exact: 720}}
             });
             console.debug("md::getUserMedia sucess",stream);

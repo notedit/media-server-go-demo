@@ -123,6 +123,7 @@ func channel(c *gin.Context) {
 
 					videoTrack.OnMediaFrame(func(frame []byte, timestamp uint) {
 
+						fmt.Println("video frame ==========")
 						if len(frame) <= 4 {
 							return
 						}
@@ -137,6 +138,7 @@ func channel(c *gin.Context) {
 
 					audioTrack.OnMediaFrame(func(frame []byte, timestamp uint){
 
+						fmt.Println("audio frame ===== ")
 						if len(frame) <= 4 {
 							return
 						}
