@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/nareix/joy5/av"
 	"github.com/nareix/joy5/codec/h264"
-	"github.com/nareix/joy5/format/rtmp"
 	"github.com/notedit/media-server-go"
 	"github.com/notedit/sdp"
 	"github.com/pion/rtp"
@@ -26,7 +25,7 @@ const (
 var NALUHeader = []byte{0, 0, 0, 1}
 
 type Stream struct {
-	conn *rtmp.Conn
+	conn av.PacketReader
 	buf  av.Packet
 
 	audio *mediaserver.MediaFrameSession
@@ -42,7 +41,7 @@ type Stream struct {
 }
 
 // NewMediaTransform  create media transform
-func NewStreamer(ctx context.Context, conn *rtmp.Conn, audio *sdp.Capability, video *sdp.Capability) *Stream {
+func NewStreamer(ctx context.Context, conn av.PacketReader, audio *sdp.Capability, video *sdp.Capability) *Stream {
 	streamer := &Stream{}
 	streamer.conn = conn
 
