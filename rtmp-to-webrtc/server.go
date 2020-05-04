@@ -8,8 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
 
-	mediaserver "github.com/notedit/media-server-go"
-	"github.com/notedit/media-server-go-demo/rtmp-to-webrtc/rtmpstreamer"
+	"github.com/notedit/media-server-go"
+	"github.com/notedit/media-server-go-demo/rtmp-to-webrtc/rtmpstream"
 	"github.com/notedit/sdp"
 
 	rtmp "github.com/notedit/rtmp-lib"
@@ -30,7 +30,7 @@ type Message struct {
 
 var endpoint = mediaserver.NewEndpoint("127.0.0.1")
 
-var rtmpStreamer = rtmpstreamer.NewRtmpStreamer(Capabilities["audio"], Capabilities["video"])
+var rtmpStreamer = rtmpstream.NewRtmpStreamer(Capabilities["audio"], Capabilities["video"])
 
 var upGrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -41,14 +41,16 @@ var upGrader = websocket.Upgrader{
 var Capabilities = map[string]*sdp.Capability{
 	"audio": &sdp.Capability{
 		Codecs: []string{"opus"},
+		Rtcpfbs: []*sdp.RtcpFeedback{
+			&sdp.RtcpFeedback{
+				ID:     "nack",
+			},
+		},
 	},
 	"video": &sdp.Capability{
 		Codecs: []string{"h264"},
 		Rtx:    true,
 		Rtcpfbs: []*sdp.RtcpFeedback{
-			&sdp.RtcpFeedback{
-				ID: "goog-remb",
-			},
 			&sdp.RtcpFeedback{
 				ID: "transport-cc",
 			},
@@ -58,7 +60,6 @@ var Capabilities = map[string]*sdp.Capability{
 			},
 			&sdp.RtcpFeedback{
 				ID:     "nack",
-				Params: []string{"pli"},
 			},
 		},
 		Extensions: []string{
@@ -129,6 +130,8 @@ func channel(c *gin.Context) {
 }
 
 func main() {
+
+
 	server := &rtmp.Server{}
 
 	server.HandlePublish = func(conn *rtmp.Conn) {

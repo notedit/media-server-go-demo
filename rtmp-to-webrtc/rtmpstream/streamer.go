@@ -1,11 +1,11 @@
-package rtmpstreamer
+package rtmpstream
 
 import (
 	"bytes"
 	"fmt"
 
 	"github.com/notedit/gst"
-	mediaserver "github.com/notedit/media-server-go"
+	"github.com/notedit/media-server-go"
 	"github.com/notedit/rtmp-lib/aac"
 	"github.com/notedit/rtmp-lib/av"
 	"github.com/notedit/rtmp-lib/h264"
@@ -20,8 +20,9 @@ import (
 var audio2rtp = "appsrc do-timestamp=true is-live=true  name=appsrc ! decodebin ! audioconvert ! audioresample ! opusenc ! rtpopuspay timestamp-offset=0 pt=%d ! udpsink host=127.0.0.1 port=%d"
 var video2rtp = "appsrc do-timestamp=true is-live=true  name=appsrc ! h264parse ! rtph264pay timestamp-offset=0 config-interval=-1 pt=%d ! udpsink host=127.0.0.1 port=%d"
 
-// RtmpStreamer _
-type RtmpStreamer struct {
+
+
+type RtmpStream struct {
 	streams        []av.CodecData
 	videoCodecData h264.CodecData
 	audioCodecData aac.CodecData
@@ -44,15 +45,15 @@ type RtmpStreamer struct {
 }
 
 // NewMediaTransform  create media transform
-func NewRtmpStreamer(audio *sdp.Capability, video *sdp.Capability) *RtmpStreamer {
-	streamer := &RtmpStreamer{}
+func NewRtmpStreamer(audio *sdp.Capability, video *sdp.Capability) *RtmpStream {
+	streamer := &RtmpStream{}
 	streamer.audioCapability = audio
 	streamer.videoCapability = video
 	return streamer
 }
 
 // WriteHeader got sps and pps
-func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
+func (self *RtmpStream) WriteHeader(streams []av.CodecData) error {
 
 	self.streams = streams
 
@@ -106,7 +107,7 @@ func (self *RtmpStreamer) WriteHeader(streams []av.CodecData) error {
 }
 
 // WritePacket
-func (self *RtmpStreamer) WritePacket(packet av.Packet) error {
+func (self *RtmpStream) WritePacket(packet av.Packet) error {
 
 	stream := self.streams[packet.Idx]
 
@@ -146,25 +147,25 @@ func (self *RtmpStreamer) WritePacket(packet av.Packet) error {
 }
 
 // WriteTrailer
-func (self *RtmpStreamer) WriteTrailer() error {
+func (self *RtmpStream) WriteTrailer() error {
 	return nil
 }
 
-func (self *RtmpStreamer) HasVideo() bool {
+func (self *RtmpStream) HasVideo() bool {
 	if self.videoPipeline != nil {
 		return true
 	}
 	return false
 }
 
-func (self *RtmpStreamer) HasAudio() bool {
+func (self *RtmpStream) HasAudio() bool {
 	if self.videoPipeline != nil {
 		return true
 	}
 	return false
 }
 
-func (self *RtmpStreamer) GetVideoTrack() *mediaserver.IncomingStreamTrack {
+func (self *RtmpStream) GetVideoTrack() *mediaserver.IncomingStreamTrack {
 
 	if self.videoSession != nil {
 		return self.videoSession.GetIncomingStreamTrack()
@@ -172,7 +173,7 @@ func (self *RtmpStreamer) GetVideoTrack() *mediaserver.IncomingStreamTrack {
 	return nil
 }
 
-func (self *RtmpStreamer) GetAuidoTrack() *mediaserver.IncomingStreamTrack {
+func (self *RtmpStream) GetAuidoTrack() *mediaserver.IncomingStreamTrack {
 
 	if self.audioSession != nil {
 		return self.audioSession.GetIncomingStreamTrack()
