@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"github.com/nareix/joy5/av"
 	"github.com/nareix/joy5/codec/h264"
 	"github.com/notedit/media-server-go"
@@ -17,10 +16,15 @@ import (
 const (
 	DefaultOpusSSRC = 111111111
 	DefaultH264SSRC = 333333333
-
-	OpusPayloadType = 111
-	H264PayloadTYpe = 127
 )
+
+var audioCapability = &sdp.Capability{
+	Codecs: []string{"opus"},
+}
+
+var videoCapability = &sdp.Capability{
+	Codecs: []string{"h264"},
+}
 
 var NALUHeader = []byte{0, 0, 0, 1}
 
@@ -41,12 +45,12 @@ type Stream struct {
 }
 
 // NewMediaTransform  create media transform
-func NewStreamer(ctx context.Context, conn av.PacketReader, audio *sdp.Capability, video *sdp.Capability) *Stream {
+func NewStreamer(ctx context.Context, conn av.PacketReader) *Stream {
 	streamer := &Stream{}
 	streamer.conn = conn
 
-	audioMedia := sdp.MediaInfoCreate("audio", audio)
-	videoMedia := sdp.MediaInfoCreate("video", video)
+	audioMedia := sdp.MediaInfoCreate("audio", audioCapability)
+	videoMedia := sdp.MediaInfoCreate("video", videoCapability)
 
 	videoSession := mediaserver.NewMediaFrameSession(videoMedia)
 	audioSession := mediaserver.NewMediaFrameSession(audioMedia)
@@ -54,8 +58,11 @@ func NewStreamer(ctx context.Context, conn av.PacketReader, audio *sdp.Capabilit
 	streamer.video = videoSession
 	streamer.audio = audioSession
 
-	videoCodec := webrtc.NewRTPH264Codec(H264PayloadTYpe, 90000)
-	audioCodec := webrtc.NewRTPOpusCodec(OpusPayloadType, 48000)
+	audioPt := uint8(audioMedia.GetCodec("opus").GetType())
+	videoPt := uint8(videoMedia.GetCodec("h264").GetType())
+
+	videoCodec := webrtc.NewRTPH264Codec(videoPt, 90000)
+	audioCodec := webrtc.NewRTPOpusCodec(audioPt, 48000)
 
 	videoPacketizer := rtp.NewPacketizer(
 		1200,
@@ -116,7 +123,6 @@ func (self *Stream) readLoop(ctx context.Context) {
 
 		switch pkt.Type {
 		case av.H264DecoderConfig:
-			fmt.Println("H264DecoderConfig ===== ")
 			self.buf.VSeqHdr = append([]byte(nil), pkt.Data...)
 			self.buf.H264, _ = h264.FromDecoderConfig(self.buf.VSeqHdr)
 
