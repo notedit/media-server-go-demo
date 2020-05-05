@@ -68,6 +68,7 @@ github.com/nareix/joy5 v0.0.0-20200409150540-6c2a804a2816 h1:YXL1GIHlL39qw2Eh8IQ
 github.com/nareix/joy5 v0.0.0-20200409150540-6c2a804a2816/go.mod h1:KQWqnCy0MEAaiqq/A/1M4ZUAs1mv6y3tGN8ICkcyNms=
 github.com/notedit/gst v0.0.3 h1:i+Wc/YB7xx8PfehIE5RRCTLJqEK4Qx1rQg/9GCZl1Mw=
 github.com/notedit/gst v0.0.3/go.mod h1:99yZ0oIrCg0xd2a1rn/1cjcUAHLAGTDxXLD1FQ5NpoM=
+github.com/notedit/gst v0.0.4 h1:n47Z8utCJX+4Tjm8r4yFWVnf/S8tab6MlSfBhVrQodk=
 github.com/notedit/gst v0.0.4/go.mod h1:99yZ0oIrCg0xd2a1rn/1cjcUAHLAGTDxXLD1FQ5NpoM=
 github.com/notedit/gstreamer-go v0.3.0 h1:M4QvNk+fdeDSgjmtiWvH0jlLDt6Rl4/yX1DC/9LA2ck=
 github.com/notedit/gstreamer-go v0.3.0/go.mod h1:CGCLZR47aRzzEmup8uQcplfOdLqEtJjFihiu+A2aIZw=

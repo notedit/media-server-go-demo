@@ -29,7 +29,6 @@ type Message struct {
 	Sdp string `json:"sdp,omitempty"`
 }
 
-
 var endpoint = mediaserver.NewEndpoint("127.0.0.1")
 
 var rtcstream *Stream
@@ -151,7 +150,7 @@ func startRtmp() {
 
 		log.Println(c.URL.Path)
 
-		rtcstream = NewStreamer(ctx,c, Capabilities["audio"], Capabilities["video"])
+		rtcstream = NewStreamer(ctx, c)
 
 		if c.Publishing {
 			for {
@@ -170,8 +169,6 @@ func startRtmp() {
 		go s.HandleNetConn(nc)
 	}
 
-
-
 }
 
 func main() {
@@ -182,7 +179,6 @@ func main() {
 	r.LoadHTMLFiles("./index.html")
 	r.GET("/channel", channel)
 	r.GET("/", index)
-
 
 	go startRtmp()
 
