@@ -120,7 +120,7 @@ func channel(c *gin.Context) {
 					appsrc := pipeline.FindElement("appsrc")
 					pipeline.Start()
 
-					videoTrack.OnMediaFrame(func(frame []byte, timestamp uint) {
+					videoTrack.OnMediaFrame(func(frame []byte, timestamp uint64) {
 
 						fmt.Println("media frame ===========")
 						if len(frame) <= 4 {
