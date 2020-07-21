@@ -35,7 +35,7 @@
         video.autoplay = true;
         video.playsInline = true;
         video.play();
-        video.muted = true;
+        video.muted = meted;
         //Append it
         container.appendChild(video);
     }
@@ -63,7 +63,7 @@
         pc.onaddstream = function(event) {
             console.debug("pc::onAddStream",event);
             //Play it
-            addVideoForStream(event.stream);
+            addVideoForStream(event.stream, true);
         };
         
         pc.onremovestream = function(event) {
