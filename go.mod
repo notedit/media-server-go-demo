@@ -2,7 +2,7 @@ module github.com/notedit/media-server-go-demo
 
 require (
 	github.com/gin-contrib/static v0.0.0-20181225054800-cf5e10bbd933
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.7
 	github.com/gofrs/uuid v3.1.0+incompatible
 	github.com/gorilla/websocket v1.4.2
 	github.com/joho/godotenv v1.3.0
